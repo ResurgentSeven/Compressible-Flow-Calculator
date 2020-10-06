@@ -29,23 +29,44 @@ function [mach, PrandtlMeyer, machAngle] = prandtlMeyerShockAngle(mach_In, Prand
         switch i
             case 1
                 % if mach was inputted
+                
                 mach = mach_In;
+                
+                % Find Mach Angle
+                machAngle = asind(1/mach);
+                
+                % Find Pradtl-Mayer Function
+                PrandtlMeyer = (((gamma + 1)/(gamma - 1))^(1/2))...
+                    *(atand((((gamma - 1)/(gamma + 1))*((mach^2) - 1))^(1/2)))...
+                    - atand(((mach^2) - 1)^(1/2));
+                
             case 2
                 % if Prandtl-Meyer function was inputted
-                eq = sprintf("%1$f = (((%2$f + 1)/(%2$f - 1))^(1/2))*(atand((((%2$f - 1)/(%2$f + 1))*((mach^2) - 1))^(1/2))) - atand(((mach^2) - 1)^(1/2))", PrandtlMeyer_In, gamma);
-                mach = solve(eq, "mach");
+                
+                PrandtlMeyer = PrandtlMeyer_In;
+                
+                % Find Mach
+                syms mach;
+                eq = PrandtlMeyer_In == (180*atan((((mach^2 - 1)*(gamma - 1))/(gamma + 1))^(1/2))*((gamma + 1)/(gamma - 1))^(1/2))/pi - (180*atan((mach^2 - 1)^(1/2)))/pi;
+                mach = double(vpasolve(eq, mach));
+                
+                % Find Mach Angle
+                machAngle = asind(1/mach);
+                
             case 3
                 % if Mach Angle was inputted
+                
+                machAngle = machAngle_In;
+                
+                % Find Mach
                 mach = 1/sind(machAngle_In);
+                
+                % Find Pradtl-Mayer Function
+                PrandtlMeyer = (((gamma + 1)/(gamma - 1))^(1/2))...
+                    *(atand((((gamma - 1)/(gamma + 1))*((mach^2) - 1))^(1/2)))...
+                    - atand(((mach^2) - 1)^(1/2));
+                
         end
-        
-        % Pradtl-Mayer Function: v
-        PrandtlMeyer = (((gamma + 1)/(gamma - 1))^(1/2))...
-            *(atand((((gamma - 1)/(gamma + 1))*((mach^2) - 1))^(1/2)))...
-            - atand(((mach^2) - 1)^(1/2));
-        
-        % Mach Angle: u
-        machAngle = asind(1/mach);
         
     else
         fprintf("Incorrect inputs!!!\n")
